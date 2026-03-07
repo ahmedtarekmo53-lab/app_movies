@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:movies_app/core/models/onboarding_model.dart';
+import 'package:movies_app/core/constants/app_colors.dart';
 
 class OnboardingPageItem extends StatelessWidget {
   final OnboardingModel model;
@@ -10,7 +11,6 @@ class OnboardingPageItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-
         /// Image Section
         Expanded(
           flex: 6,

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:movies_app/features/onboarding/data/onboarding_data.dart';
-import '../../widgets/onboarding_page_item.dart';
-import '../widgets/onboarding_page_item.dart';
+import 'package:movies_app/features/onboarding/widgets/onboarding_page_item.dart';
+import 'package:movies_app/core/utils/cache_helper.dart';
+import 'package:movies_app/core/constants/routes.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -11,7 +12,6 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
-
   final PageController controller = PageController();
   int currentIndex = 0;
 
@@ -21,7 +21,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       backgroundColor: const Color(0xff121212),
       body: Column(
         children: [
-
           Expanded(
             child: PageView.builder(
               controller: controller,
@@ -38,7 +37,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               },
             ),
           ),
-
           const SizedBox(height: 20),
 
           /// Indicator
@@ -46,7 +44,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
               onboardingPages.length,
-                  (index) => AnimatedContainer(
+              (index) => AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 margin: const EdgeInsets.symmetric(horizontal: 4),
                 width: currentIndex == index ? 22 : 8,
@@ -60,7 +58,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
           ),
-
           const SizedBox(height: 25),
 
           /// Button
@@ -78,7 +75,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
                 onPressed: () {
                   if (currentIndex == onboardingPages.length - 1) {
-                    Navigator.pushReplacementNamed(context, "/login");
+                    CacheHelper.saveData("onboarding", true);
+                    Navigator.pushReplacementNamed(context, AppRoutes.login);
                   } else {
                     controller.nextPage(
                       duration: const Duration(milliseconds: 400),
@@ -87,9 +85,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   }
                 },
                 child: Text(
-                  currentIndex == onboardingPages.length - 1
-                      ? "Finish"
-                      : "Next",
+                  currentIndex == onboardingPages.length - 1 ? "Finish" : "Next",
                   style: const TextStyle(
                     fontSize: 18,
                     color: Colors.black,
@@ -99,7 +95,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
           ),
-
           const SizedBox(height: 30),
         ],
       ),

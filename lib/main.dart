@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'core/constants/routes.dart';
-import 'core/utils/cache_helper.dart';
-import 'features/splash/presentation/splash_screen.dart';
-import 'features/onboarding/presentation/screens/onboarding_screen.dart';
-import 'features/auth/presentation/login_screen.dart';
+import 'package:movies_app/features/splash/presentation/splash_screen.dart';
+import 'package:movies_app/features/onboarding/presentation/screens/onboarding_screen.dart';
+import 'package:movies_app/features/auth/presentation/login_screen.dart';
+import 'package:movies_app/core/constants/routes.dart';
+import 'package:movies_app/core/utils/cache_helper.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await CacheHelper.init();
   runApp(const MoviesApp());
 }
-
 
 class MoviesApp extends StatelessWidget {
   const MoviesApp({super.key});
@@ -27,5 +27,3 @@ class MoviesApp extends StatelessWidget {
     );
   }
 }
-
-

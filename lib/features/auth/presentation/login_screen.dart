@@ -1,62 +1,47 @@
 import 'package:flutter/material.dart';
-import '../../../../shared/widgets/custom_button.dart';
-import '../../onboarding/presentation/screens/onboarding_screen.dart';
+import 'package:movies_app/shared/widgets/custom_button.dart';
+import 'package:movies_app/shared/widgets/custom_text_field.dart';
+import 'package:movies_app/core/constants/app_colors.dart';
+import 'package:movies_app/core/constants/routes.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(25),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-
-            Image.asset(
-              "assets/images/logo_splash.png", // 🔥 اللوجو
-              height: 90,
+            /// LOGO
+            const Icon(
+              Icons.play_circle,
+              color: AppColors.primary,
+              size: 80,
             ),
-
             const SizedBox(height: 40),
-
-            TextField(
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
-                hintText: "Email",
-                hintStyle: TextStyle(color: Colors.grey),
-              ),
-            ),
-
+            const CustomTextField(hint: "Email"),
             const SizedBox(height: 20),
-
-            TextField(
-              obscureText: true,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
-                hintText: "Password",
-                hintStyle: TextStyle(color: Colors.grey),
+            const CustomTextField(
+              hint: "Password",
+              obscure: true,
+            ),
+            const SizedBox(height: 10),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () {},
+                child: const Text("Forgot Password"),
               ),
             ),
-
-            const SizedBox(height: 30),
-
-
+            const SizedBox(height: 20),
             CustomButton(
               text: "Login",
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const OnboardingScreen(),
-                  ),
-                );
-              },
+              onPressed: () {},
             ),
-
-
           ],
         ),
       ),
