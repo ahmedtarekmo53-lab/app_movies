@@ -75,7 +75,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
                 onPressed: () {
                   if (currentIndex == onboardingPages.length - 1) {
-                    CacheHelper.saveData("onboarding", true);
+                    CacheHelper.saveData(key: "onboarding", value: true);
                     Navigator.pushReplacementNamed(context, AppRoutes.login);
                   } else {
                     controller.nextPage(
