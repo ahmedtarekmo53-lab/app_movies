@@ -38,6 +38,11 @@ class MovieModel extends HiveObject {
     required this.language,
   });
 
+  // Function to convert list of movies to unique genres Set
+  static Set<String> getAllGenres(List<MovieModel> movies) {
+    return movies.expand((movie) => movie.genres).toSet();
+  }
+
   factory MovieModel.fromJson(Map<String, dynamic> json) {
     return MovieModel(
       id: json['id'] ?? 0,

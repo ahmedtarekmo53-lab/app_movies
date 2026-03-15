@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:movies_app/core/models/movie_model.dart';
 import 'package:movies_app/core/constants/app_colors.dart';
 import 'package:movies_app/shared/widgets/custom_button.dart';
@@ -84,29 +85,29 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
       isInWatchlist = !isInWatchlist;
     });
 
-    // Update count in CacheHelper for Profile Tab
     await CacheHelper.saveData(key: "wishListCount", value: watchlistBox.length);
     
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(isInWatchlist ? "Added to Watch List" : "Removed from Watch List"),
-        duration: const Duration(seconds: 1),
-      ),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(isInWatchlist ? "Added to Watch List" : "Removed from Watch List"),
+          duration: const Duration(seconds: 1),
+        ),
+      );
+    }
   }
 
   void addToHistory() async {
     await historyBox.put(widget.movie.id, widget.movie);
-    
-    // Update count in CacheHelper for Profile Tab
     await CacheHelper.saveData(key: "historyCount", value: historyBox.length);
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Added to History"),
-        duration: const Duration(seconds: 1),
-      ),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Added to History"),
+          duration: const Duration(seconds: 1),
+        ),
+      );
+    }
   }
 
   @override
@@ -133,10 +134,11 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(
-                    widget.movie.bigPoster,
+                  CachedNetworkImage(
+                    imageUrl: widget.movie.bigPoster,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+                    placeholder: (context, url) => Container(color: Colors.grey[900]),
+                    errorWidget: (context, url, error) => const Icon(Icons.error),
                   ),
                   Container(
                     decoration: BoxDecoration(
@@ -204,12 +206,10 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     text: "Watch Now", 
                     onPressed: () {
                       addToHistory();
-                      // Logic to play movie...
                     }
                   ),
                   const SizedBox(height: 30),
 
-                  /// Parental Guides Section
                   if (parentalGuides.isNotEmpty) ...[
                     const Text("Parental Guide", style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 10),
@@ -232,7 +232,6 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     const SizedBox(height: 30),
                   ],
 
-                  /// Suggestions Section
                   const Text("More Like This", style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 15),
                   isLoadingSuggestions

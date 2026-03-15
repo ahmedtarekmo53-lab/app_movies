@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:movies_app/core/models/movie_model.dart';
 import 'package:movies_app/core/constants/app_colors.dart';
 import 'package:movies_app/features/home/presentation/screens/movie_details_screen.dart';
@@ -29,11 +30,17 @@ class MovieCard extends StatelessWidget {
             Expanded(
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
-                child: Image.network(
-                  movie.poster,
-                  width: double.infinity,
+                child: CachedNetworkImage(
+                  imageUrl: movie.poster,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => const Center(
+                  width: double.infinity,
+                  placeholder: (context, url) => Container(
+                    color: Colors.grey[800],
+                    child: const Center(
+                      child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 2),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => const Center(
                     child: Icon(Icons.broken_image, color: Colors.grey),
                   ),
                 ),
