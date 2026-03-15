@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:movies_app/core/models/movie_model.dart';
 import 'package:movies_app/core/constants/app_colors.dart';
 import 'package:movies_app/shared/widgets/custom_button.dart';
 import 'package:movies_app/core/network/dio_helper.dart';
 import 'package:movies_app/shared/widgets/movie_card.dart';
+import 'package:movies_app/core/utils/cache_helper.dart';
 
 class MovieDetailsScreen extends StatefulWidget {
   final MovieModel movie;
@@ -18,10 +20,18 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   List<dynamic> parentalGuides = [];
   bool isLoadingSuggestions = true;
   bool isLoadingGuides = true;
+  bool isInWatchlist = false;
+
+  late Box<MovieModel> watchlistBox;
+  late Box<MovieModel> historyBox;
 
   @override
   void initState() {
     super.initState();
+    watchlistBox = Hive.box<MovieModel>('watchlist');
+    historyBox = Hive.box<MovieModel>('history');
+    isInWatchlist = watchlistBox.containsKey(widget.movie.id);
+    
     getSuggestions();
     getParentalGuides();
   }
@@ -63,6 +73,42 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     });
   }
 
+  void toggleWatchlist() async {
+    if (isInWatchlist) {
+      await watchlistBox.delete(widget.movie.id);
+    } else {
+      await watchlistBox.put(widget.movie.id, widget.movie);
+    }
+    
+    setState(() {
+      isInWatchlist = !isInWatchlist;
+    });
+
+    // Update count in CacheHelper for Profile Tab
+    await CacheHelper.saveData(key: "wishListCount", value: watchlistBox.length);
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(isInWatchlist ? "Added to Watch List" : "Removed from Watch List"),
+        duration: const Duration(seconds: 1),
+      ),
+    );
+  }
+
+  void addToHistory() async {
+    await historyBox.put(widget.movie.id, widget.movie);
+    
+    // Update count in CacheHelper for Profile Tab
+    await CacheHelper.saveData(key: "historyCount", value: historyBox.length);
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Added to History"),
+        duration: const Duration(seconds: 1),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,11 +119,14 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
             expandedHeight: 400,
             pinned: true,
             backgroundColor: AppColors.background,
-            leading: CircleAvatar(
-              backgroundColor: Colors.black.withOpacity(0.5),
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
-                onPressed: () => Navigator.pop(context),
+            leading: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: CircleAvatar(
+                backgroundColor: Colors.black.withOpacity(0.5),
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+                  onPressed: () => Navigator.pop(context),
+                ),
               ),
             ),
             flexibleSpace: FlexibleSpaceBar(
@@ -117,7 +166,14 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                           style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold),
                         ),
                       ),
-                      const Icon(Icons.bookmark_border, color: AppColors.primary, size: 30),
+                      IconButton(
+                        onPressed: toggleWatchlist,
+                        icon: Icon(
+                          isInWatchlist ? Icons.bookmark : Icons.bookmark_border,
+                          color: AppColors.primary,
+                          size: 35,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -144,7 +200,13 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                   const SizedBox(height: 10),
                   Text(widget.movie.description, style: const TextStyle(color: Colors.grey, fontSize: 15, height: 1.5)),
                   const SizedBox(height: 30),
-                  CustomButton(text: "Watch Now", onPressed: () {}),
+                  CustomButton(
+                    text: "Watch Now", 
+                    onPressed: () {
+                      addToHistory();
+                      // Logic to play movie...
+                    }
+                  ),
                   const SizedBox(height: 30),
 
                   /// Parental Guides Section

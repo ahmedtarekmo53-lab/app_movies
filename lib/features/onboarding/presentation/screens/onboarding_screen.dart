@@ -15,10 +15,33 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController controller = PageController();
   int currentIndex = 0;
 
+  void skipOnboarding() {
+    CacheHelper.saveData(key: "onboarding", value: true);
+    Navigator.pushReplacementNamed(context, AppRoutes.login);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xff121212),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          if (currentIndex != onboardingPages.length - 1)
+            TextButton(
+              onPressed: skipOnboarding,
+              child: const Text(
+                "Skip",
+                style: TextStyle(
+                  color: Color(0xFFFFBB00),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+        ],
+      ),
       body: Column(
         children: [
           Expanded(
@@ -75,8 +98,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
                 onPressed: () {
                   if (currentIndex == onboardingPages.length - 1) {
-                    CacheHelper.saveData(key: "onboarding", value: true);
-                    Navigator.pushReplacementNamed(context, AppRoutes.login);
+                    skipOnboarding();
                   } else {
                     controller.nextPage(
                       duration: const Duration(milliseconds: 400),

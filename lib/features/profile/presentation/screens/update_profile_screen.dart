@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:movies_app/shared/widgets/custom_button.dart';
 import 'package:movies_app/shared/widgets/custom_text_field.dart';
 import 'package:movies_app/core/constants/app_colors.dart';
+import 'package:movies_app/core/utils/cache_helper.dart';
 
 class UpdateProfileScreen extends StatefulWidget {
   const UpdateProfileScreen({super.key});
@@ -12,13 +13,10 @@ class UpdateProfileScreen extends StatefulWidget {
 
 class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   final nameController = TextEditingController();
-  final emailController = TextEditingController();
   final phoneController = TextEditingController();
-  final passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   bool isLoading = false;
 
-  // قائمة الصور التي أضفتها في الـ assets
   final List<String> avatarImages = [
     "assets/images/Component 11 – 1.png",
     "assets/images/Component 11 – 4.png",
@@ -30,17 +28,32 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
     "assets/images/Component 11 – 10.png",
   ];
 
-  String selectedAvatar = "assets/images/Component 11 – 1.png";
+  late String selectedAvatar;
 
-  void updateProfile() {
+  @override
+  void initState() {
+    super.initState();
+    nameController.text = CacheHelper.getData(key: "userName") ?? "John Safwat";
+    phoneController.text = CacheHelper.getData(key: "userPhone") ?? "01200000000";
+    selectedAvatar = CacheHelper.getData(key: "userAvatar") ?? "assets/images/Component 11 – 1.png";
+  }
+
+  void updateProfile() async {
     if (formKey.currentState!.validate()) {
       setState(() => isLoading = true);
-      Future.delayed(const Duration(seconds: 1), () {
-        setState(() => isLoading = false);
+      
+      await CacheHelper.saveData(key: "userName", value: nameController.text);
+      await CacheHelper.saveData(key: "userPhone", value: phoneController.text);
+      await CacheHelper.saveData(key: "userAvatar", value: selectedAvatar);
+
+      setState(() => isLoading = false);
+      
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Profile updated successfully!")),
         );
-      });
+        Navigator.pop(context, true); // Return true to refresh profile tab
+      }
     }
   }
 
@@ -50,7 +63,8 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: const Text("Update Profile"),
+        title: const Text("Pick Avatar"),
+        centerTitle: true,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: AppColors.primary),
@@ -64,57 +78,70 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
             key: formKey,
             child: Column(
               children: [
-                // اختيار الصورة الشخصية من الصور الجديدة
-                SizedBox(
-                  height: 120,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: avatarImages.length,
-                    itemBuilder: (context, index) {
-                      bool isSelected = selectedAvatar == avatarImages[index];
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            selectedAvatar = avatarImages[index];
-                          });
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.only(right: 15),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: isSelected ? AppColors.primary : Colors.transparent,
-                              width: 3,
-                            ),
-                          ),
-                          child: CircleAvatar(
-                            radius: 50,
-                            backgroundImage: AssetImage(avatarImages[index]),
+                CircleAvatar(
+                  radius: 60,
+                  backgroundImage: AssetImage(selectedAvatar),
+                ),
+                const SizedBox(height: 30),
+                
+                /// Avatar Grid as in image
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    mainAxisSpacing: 15,
+                    crossAxisSpacing: 15,
+                  ),
+                  itemCount: avatarImages.length,
+                  itemBuilder: (context, index) {
+                    bool isSelected = selectedAvatar == avatarImages[index];
+                    return GestureDetector(
+                      onTap: () => setState(() => selectedAvatar = avatarImages[index]),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: isSelected ? AppColors.primary : Colors.transparent,
+                            width: 3,
                           ),
                         ),
-                      );
-                    },
-                  ),
+                        child: CircleAvatar(
+                          backgroundImage: AssetImage(avatarImages[index]),
+                        ),
+                      ),
+                    );
+                  },
                 ),
-                const SizedBox(height: 10),
-                const Text(
-                  "Choose your avatar",
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
-                ),
+                
                 const SizedBox(height: 40),
                 CustomTextField(hint: "Name", controller: nameController),
                 const SizedBox(height: 15),
-                CustomTextField(hint: "Email", controller: emailController),
-                const SizedBox(height: 15),
                 CustomTextField(hint: "Phone", controller: phoneController),
+                const SizedBox(height: 30),
+                
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  onPressed: () {
+                    // Handle delete account
+                  },
+                  child: const Text("Delete Account", style: TextStyle(color: Colors.white)),
+                ),
                 const SizedBox(height: 15),
-                CustomTextField(hint: "Password", obscure: true, controller: passwordController),
-                const SizedBox(height: 40),
                 isLoading
                     ? const CircularProgressIndicator(color: AppColors.primary)
-                    : CustomButton(
-                        text: "Update Profile",
+                    : ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          minimumSize: const Size(double.infinity, 50),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
                         onPressed: updateProfile,
+                        child: const Text("Update Data", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
                       ),
               ],
             ),

@@ -1,13 +1,28 @@
-class MovieModel {
+import 'package:hive/hive.dart';
+
+part 'movie_model.g.dart';
+
+@HiveType(typeId: 0)
+class MovieModel extends HiveObject {
+  @HiveField(0)
   final int id;
+  @HiveField(1)
   final String title;
+  @HiveField(2)
   final String poster;
+  @HiveField(3)
   final String bigPoster;
+  @HiveField(4)
   final double rating;
+  @HiveField(5)
   final int year;
+  @HiveField(6)
   final String description;
+  @HiveField(7)
   final List<String> genres;
+  @HiveField(8)
   final int runtime;
+  @HiveField(9)
   final String language;
 
   MovieModel({
