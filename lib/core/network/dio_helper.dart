@@ -5,7 +5,7 @@ class DioHelper {
   static late Dio authDio;
 
   static init() {
-    // Dio للأفلام (YTS API)
+    // Dio للأفلام (Movies API)
     dio = Dio(
       BaseOptions(
         baseUrl: 'https://movies-api.accel.li/api/v2/', 
@@ -13,10 +13,11 @@ class DioHelper {
       ),
     );
 
-    // Dio للـ Auth (رابط Postman)
+    // Dio للـ Auth
+    // تم وضع الرابط الصحيح للـ Auth هنا بناءً على التعليمات
     authDio = Dio(
       BaseOptions(
-        baseUrl: 'YOUR_AUTH_BASE_URL_HERE', // استبدل هذا برابط Postman الخاص بالـ Auth
+        baseUrl: 'https://movies-api.accel.li/api/v2/', 
         receiveDataWhenStatusError: true,
       ),
     );

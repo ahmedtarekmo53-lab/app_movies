@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:movies_app/core/network/dio_helper.dart';
 import 'package:movies_app/core/utils/cache_helper.dart';
 
 abstract class AuthStates {}
@@ -27,17 +26,12 @@ class AuthCubit extends Cubit<AuthStates> {
   void login({required String email, required String password}) {
     emit(AuthLoadingState());
     
-    // استخدام authDio الخاص بالـ Auth Base URL
-    DioHelper.postData(
-      url: 'login', 
-      data: {'email': email, 'password': password},
-      isAuth: true,
-    ).then((value) {
-      String token = value.data['token'] ?? '';
-      CacheHelper.saveData(key: 'token', value: token);
-      emit(AuthLoginSuccessState(token));
-    }).catchError((error) {
-      emit(AuthLoginErrorState(error.toString()));
+    // Fake Login Logic لضمان عمل التطبيق في Phase 1
+    // بمجرد حصولك على API الـ Auth، قم بتفعيل الـ DioHelper.postData
+    Future.delayed(const Duration(seconds: 1), () {
+      String fakeToken = "dummy_token_123";
+      CacheHelper.saveData(key: 'token', value: fakeToken);
+      emit(AuthLoginSuccessState(fakeToken));
     });
   }
 
@@ -48,19 +42,10 @@ class AuthCubit extends Cubit<AuthStates> {
     required String password,
   }) {
     emit(AuthLoadingState());
-    DioHelper.postData(
-      url: 'register',
-      data: {
-        'name': name,
-        'email': email,
-        'phone': phone,
-        'password': password,
-      },
-      isAuth: true,
-    ).then((value) {
+
+    // Fake Register Logic
+    Future.delayed(const Duration(seconds: 1), () {
       emit(AuthRegisterSuccessState());
-    }).catchError((error) {
-      emit(AuthRegisterErrorState(error.toString()));
     });
   }
 }
